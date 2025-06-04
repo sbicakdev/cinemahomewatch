@@ -1,8 +1,10 @@
 import requests
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Cinema, Movie, Showtime
+from .forms import ReviewForm
+from django.db.models import Avg
 
 # Create your views here.
 def fetch_cinema_data(request):
@@ -85,7 +87,29 @@ def movie_details(request, movie_id):
     movie = get_object_or_404(Movie, id=movie_id)
     showtimes = Showtime.objects.filter(movie=movie).select_related('cinema')
 
-    return render(request, 'movies/movie_details.html', {
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.user = request.user
+            review.movie = movie
+            review.save()
+            return redirect('movie_details', movie_id=movie.id)
+    else:
+        form = ReviewForm()
+
+    average_rating = movie.reviews.aggregate(Avg('rating'))['rating__avg']
+    if average_rating:
+            average_rating = round(average_rating, 1)
+
+    reviews = movie.reviews.select_related('user').order_by('-created_at')
+
+
+    context = {
         'movie': movie,
-        'showtimes': showtimes
-    })
+        'showtimes': showtimes,
+        'form': form,
+        'average_rating': average_rating,
+        'reviews': reviews,
+    }
+    return render(request, 'movies/movie_details.html', context)

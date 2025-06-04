@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class RegistrationForm(forms.ModelForm):
@@ -44,4 +45,7 @@ class RegistrationForm(forms.ModelForm):
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=150,label="Username")
     password = forms.CharField(widget=forms.PasswordInput, label="Password")
+
+
+
 

@@ -8,7 +8,7 @@
     {% block content %}
     {% endblock %}
 
-    <footer style="position:fixed; bottom:0; width:100%; background:#f1f1f1; padding:10px; text-align:center;">
+    <footer style="position:relative; top:0; width:100%; background:#f1f1f1; padding:10px; text-align:center;">
         {% if user.is_authenticated %}
             <form method="post" action="{% url 'logout' %}">
                 {% csrf_token %}
