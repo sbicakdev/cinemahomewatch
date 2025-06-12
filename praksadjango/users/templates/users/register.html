@@ -2,13 +2,19 @@
 <html>
 <head>
     <title>Registration</title>
+    {% load static %}
+        <link rel="stylesheet" href="{% static 'register.css' %}">
+
 </head>
 <body>
-    <h2>User registration</h2>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Register</button>
-    </form>
+    <div class="registration-container">
+        <h2>User Registration</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Register</button>
+        </form>
+        <a href="/login">Have an account? Sign in then.</a>
+    </div>
 </body>
 </html>

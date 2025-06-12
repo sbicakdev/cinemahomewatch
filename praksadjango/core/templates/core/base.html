@@ -2,19 +2,47 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Moja Aplikacija{% endblock %}</title>
+    <title>{% block title %}Cinema praksa{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'base.css' %}">
 </head>
 <body>
-    {% block content %}
-    {% endblock %}
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <nav>
+                <h2>Cinema praksa</h2>
+                <ul>
+                    <li><a href="/login">Sign in</a></li>
+                    <li><a href="/register">Sign up</a></li>
+                    <li><a href="/api/movies-template">Movies</a></li>
+                    {% if user.is_authenticated %}
+                        <li>
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit">Logout</button>
+                            </form>
+                        </li>
+                    {% endif %}
+                    <li><a href="/api/fetch_cinema_data">Fetch data</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="content">
+            <button class="toggle-button" onclick="toggleSidebar()">☰ Menu</button>
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
 
-    <footer style="position:relative; top:0; width:100%; background:#f1f1f1; padding:10px; text-align:center;">
-        {% if user.is_authenticated %}
-            <form method="post" action="{% url 'logout' %}">
-                {% csrf_token %}
-                <button type="submit">Odjavi se</button>
-            </form>
-        {% endif %}
+    <footer>
+        
     </footer>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+        }
+    </script>
 </body>
 </html>

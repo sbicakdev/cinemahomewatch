@@ -2,13 +2,18 @@
 <html>
 <head>
     <title>Login</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'login.css' %}">
 </head>
 <body>
-    <h2>User login</h2>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Prijava</button>
-    </form>
+    <div class="login-container">
+        <h2>User Login</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Login</button>
+        </form>
+        <a href="/register">No account? Create one.</a>
+    </div>
 </body>
 </html>

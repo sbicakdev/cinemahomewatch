@@ -1,6 +1,6 @@
 {% extends "core/base.html" %}
 
-{% block title %}{{ movie.title }} - Detalji{% endblock %}
+{% block title %}{{ movie.title }} - Details{% endblock %}
 
 {% block content %}
     <h1>{{ movie.title }}</h1>
@@ -13,36 +13,36 @@
         {% for showtime in showtimes %}
             <li>{{ showtime.showtime }} - {{ showtime.cinema.name }}</li>
         {% empty %}
-            <li>Nema dostupnih termina.</li>
+            <li>No available showtimes.</li>
         {% endfor %}
     </ul>
 
-    <h2>Prosječna ocjena:</h2>
+    <h2>Average rating:</h2>
     {% if average_rating %}
         <p><strong>{{ average_rating }}</strong> / 5</p>
     {% else %}
-        <p>Nema ocjena još.</p>
+        <p>No ratings yet.</p>
     {% endif %}
 
-    <h2>Recenzije:</h2>
+    <h2>Reviews:</h2>
     {% if reviews %}
         <ul>
             {% for review in reviews %}
                 <li>
                     <strong>{{ review.user.username }}</strong> ({{ review.created_at|date:"d.m.Y H:i" }})<br>
-                    Ocjena: {{ review.rating }} / 5<br>
-                    Komentar: {{ review.comment }}
+                    Rating: {{ review.rating }} / 5<br>
+                    Comment: {{ review.comment }}
                 </li>
             {% endfor %}
         </ul>
     {% else %}
-        <p>Nema recenzija još.</p>
+        <p>No reviews yet.</p>
     {% endif %}
 
-    <h2>Dodaj recenziju:</h2>
+    <h2>Add a review:</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Pošalji recenziju</button>
+        <button type="submit">Submit review</button>
     </form>
 {% endblock %}

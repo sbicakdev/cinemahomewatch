@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from api.models import CustomUser
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -10,8 +10,8 @@ class RegistrationForm(forms.ModelForm):
     password2 = forms.CharField(widget=forms.PasswordInput, label="Confirm Password")
 
     class Meta:
-        model = User
-        fields = ['username', 'email', 'first_name', 'last_name']
+        model = CustomUser
+        fields = ['username', 'email', 'first_name', 'last_name', 'favorite_genre_1', 'favorite_genre_2', 'favorite_genre_3']
 
     def clean(self):
         cleaned_data = super().clean()
@@ -31,7 +31,7 @@ class RegistrationForm(forms.ModelForm):
 
     def clean_username(self):
         username = self.cleaned_data['username']
-        if User.objects.filter(username=username).exists():
+        if CustomUser.objects.filter(username=username).exists():
             raise ValidationError("Username already exists!")
         return username
 

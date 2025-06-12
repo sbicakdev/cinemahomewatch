@@ -2,9 +2,10 @@ import requests
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Cinema, Movie, Showtime
+from .models import Cinema, Movie, Showtime, Genre, MoviesGenres
 from .forms import ReviewForm
 from django.db.models import Avg
+import random
 
 # Create your views here.
 def fetch_cinema_data(request):
@@ -33,14 +34,24 @@ def fetch_cinema_data(request):
                     }
                 )
 
-            movie, _ = Movie.objects.get_or_create(
+            movieobj, _ = Movie.objects.get_or_create(
                 title=movie_data.get('title', ''),
                 defaults={
-                    'description': 'Description',
+                    'description': movie_data.get('summary', ''),
                     'duration': movie_data.get('stats', {}).get('duration', 0),
                     'poster_url': movie_data.get('poster_url', ''),
                 }
             )
+
+            genres=movie_data.get('genre', [])
+            for genre in genres:
+                genreobj, _ = Genre.objects.get_or_create(
+                    name=genre
+                )
+                MoviesGenres.objects.get_or_create(
+                    movie=movieobj,
+                    genre=genreobj
+                )
 
             for showtime_group in data_movie.get('showtimes', []):
                 for group_data in showtime_group.get('group_data', []):
@@ -51,7 +62,7 @@ def fetch_cinema_data(request):
 
                     for showtime_info in group_data.get('showtimes_data', []):
                         Showtime.objects.get_or_create(
-                            movie=movie,
+                            movie=movieobj,
                             cinema=cinema,
                             showtime=showtime_info.get('date_time', '')
                         )
@@ -77,10 +88,42 @@ def get_movie_db_data(request):
             "message": str(e)
         }, status=500)
 
+from api.models import Movie, MoviesGenres
+import random
+
+import random
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import Movie
+
 @login_required(login_url="/login/")
 def movie_list(request):
+    user = request.user
+
+    user_genres = [user.favorite_genre_1, user.favorite_genre_2, user.favorite_genre_3]
+    user_genres = [g for g in user_genres if g is not None]
+
     movies = Movie.objects.all()
-    return render(request, 'movies/movies.html', {'movies': movies})
+    all_genres = Genre.objects.all()
+    if user_genres:
+        top_movies_qs = (
+            Movie.objects
+            .filter(moviesgenres__genre__in=user_genres)
+            .distinct()
+            .order_by('-average_rating')[:3]
+        )
+        recommendations = top_movies_qs
+    else:
+        recommendations = []
+
+    return render(request, 'movies/movies.html', {
+        'movies': movies,
+        'all_genres': all_genres,
+        'recommendations': recommendations
+    })
+
+
+
 
 @login_required(login_url="/login/")
 def movie_details(request, movie_id):
@@ -98,9 +141,7 @@ def movie_details(request, movie_id):
     else:
         form = ReviewForm()
 
-    average_rating = movie.reviews.aggregate(Avg('rating'))['rating__avg']
-    if average_rating:
-            average_rating = round(average_rating, 1)
+    average_rating = movie.average_rating
 
     reviews = movie.reviews.select_related('user').order_by('-created_at')
 
