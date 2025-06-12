@@ -1,2 +1,2 @@
 # cinemahomewatch
-About wathing films on a local devise using python and django framework.
+About watching films on a local device using python and django framework.
